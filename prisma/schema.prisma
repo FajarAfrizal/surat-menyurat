@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id          Int           @id @default(autoincrement())
+  employee_id Int?
+  name        String
+  email       String
+  password    String
+  created_at  DateTime      @default(now())
+  updated_at  DateTime?
+  deleted_at  DateTime?
+  is_active   Boolean
+  mail        mail[]
+  dispotition dispotition[]
+  employee    employee?     @relation(fields: [employee_id], references: [id])
+}
+
+model employee {
+  id          Int       @id @default(autoincrement())
+  position_id Int
+  fullname    String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime?
+  deleted_at  DateTime?
+  position    position  @relation(fields: [position_id], references: [id])
+  user        user[]
+}
+
+model position {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime?
+  deleted_at DateTime?
+  employee   employee[]
+}
+
+model mail {
+  id              Int           @id @default(autoincrement())
+  user_id         Int
+  about           String
+  from            String?
+  mail_code       Int
+  date_of_letter  DateTime
+  date_of_receipt DateTime?
+  notes           String
+  // expired         Boolean       @default(false)
+  tendency        Int //1 = secret, 2 = important, 3 = common
+  mail_type       Int //1 = incoming_mail, 2 = outgoing_mail
+  status          Int           @default(1) // 1 = sent, 2 = read, 3 = expires
+  file            String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime?
+  deleted_at      DateTime?
+  dispotition     dispotition[]
+  user            user          @relation(fields: [user_id], references: [id])
+}
+
+model dispotition {
+  id         Int       @id @default(autoincrement())
+  user_id    Int // di input
+  mail_id    Int
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+  deleted_at DateTime?
+  mail       mail      @relation(fields: [mail_id], references: [id])
+  user       user      @relation(fields: [user_id], references: [id])
+}
